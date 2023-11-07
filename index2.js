@@ -10,7 +10,6 @@ const rl = readline.createInterface({
 //se saca ^esto^ porque estaba creando demasiadas instancias dentro de userFeedback y creaba oyentes(los oyentes son llamadas
 //inesesarias a una funcion que no dan ningun resultado y cargan la memoria* por revizar)
 
-
 function userFeedback(toAsk, myFunction, followUp) {
   rl.question(toAsk, (userInput) => {
     myFunction(userInput);
@@ -21,7 +20,7 @@ function userFeedback(toAsk, myFunction, followUp) {
 function playAgain() {
   userFeedback(
     `\nDo you wanna play again? 
-  \nY or N \n`,
+  \nYes: y or No: n \n`,
     function (input) {
       if (input.toLowerCase() === "y") {
         return startGame(function () {});
@@ -83,11 +82,12 @@ function round(callback) {
   \nLock Code: ${exe1Answer}-${exe2Answer}-${exe3Answer} = \n`,
       function (input) {
         if (input === "480240") {
-          console.log("\nIt's open!!! \n-------------- (^ ﾟДﾟ)^ --------------\nNow Run!!!! ");
+          console.log(
+            "\nIt's open!!! \n-------------- (^ ﾟДﾟ)^ --------------\nNow Run!!!! "
+          );
           endGame();
         } else {
-          console.log(
-            "Some of your answer are incorrect.\n (╬ ಠ益ಠ) \n");
+          console.log("Some of your answer are incorrect.\n\n(╬ ಠ益ಠ) \n");
           playAgain();
         }
         callback();
@@ -101,7 +101,7 @@ function wrongRace(callback) {
   userFeedback(
     `You must write in character type, please try again.\n${characters.type[0]} - ${characters.type[1]} - ${characters.type[2]} \n`,
     Race,
-    callback || function () {}
+    callback
   );
 }
 
