@@ -1,6 +1,30 @@
+const EventEmitter = require("events");
+const emitter = new EventEmitter();
+emitter.setMaxListeners(50); // Aumenta el límite a 50
+
 const characters = {
   type: ["Elf", "Human", "Orc"],
 };
+
+
+function playAgain(callback) {
+  userFeedback(
+    `\nJugar de nuevo? 
+  \ny or n \n`,
+    function (input) {
+      if (input === "y") {
+        console.log("ejecutar start game");
+      } else {
+        console.log(
+          "game over"
+        );
+      }
+      callback();
+    },
+    function () {}
+  );
+}
+
 
 function userFeedback(toAsk, myFunction, followUp) {
   const readline = require("readline");
@@ -13,20 +37,22 @@ function userFeedback(toAsk, myFunction, followUp) {
     followUp(userInput);
   });
 }
+function endGame() {
+  console.log("You have finished");
+}
 
 function round(callback) {
-  console.log("Calcula: 1 ejercicio:");
+  console.log("Calcula:");
   let level1 = 2;
+  let saveTextResult = "Save result for the end";
 
   function firstask(callback) {
     userFeedback(
       `\nWrite your answer.\n${level1} + ${level1}\n`,
       function (input) {
-        if (input === "4") {
-          console.log("Correcto");
-          level1 = 4;
-          secondTask(callback);
-        }
+        console.log(saveTextResult);
+        level1 = input;
+        secondTask(callback);
       },
       function () {}
     );
@@ -38,11 +64,9 @@ function round(callback) {
     userFeedback(
       `\nWrite your answer.\n${level2} + ${level2}\n`,
       function (input) {
-        if (input === "80") {
-          console.log("Lo estas haciendo genial!");
-          level2 = 80;
-          thirdTask(callback);
-        }
+        console.log(saveTextResult);
+        level2 = input;
+        thirdTask(callback);
         callback();
       },
       function () {}
@@ -54,10 +78,28 @@ function round(callback) {
     userFeedback(
       `\nWrite your answer.\n${level3} + ${level3}\n`,
       function (input) {
-        if (input === "240") {
-          console.log("Increible!!!");
-          level3 = 240;
-          lockCode(callback);
+        console.log(saveTextResult);
+        level3 = input;
+        lockCode(callback);
+
+        callback();
+      },
+      function () {}
+    );
+  }
+
+  function lockCode(callback) {
+    userFeedback(
+      `\nVamos a poner todos los resultados juntos en la cerradura! 
+  \nLock Code: ${level1}-${level2}-${level3}\n`,
+      function (input) {
+        if (input === "480240") {
+          console.log("Está abierta!!!");
+        } else {
+          console.log(
+            "Tus resultados incorrectos rompieron el candado y no puedes salir."
+          );
+          playAgain();
         }
         callback();
       },
@@ -65,20 +107,6 @@ function round(callback) {
     );
   }
   callback;
-
-  function lockCode(callback) {
-    userFeedback(
-      `\nVamos a poner todos los resultados juntos en la cerradura! 
-  \nLock Code:\n`,
-      function (input) {
-        if (input === "480240") {
-          console.log("Está abierta!!!");
-        }
-        callback();
-      },
-      function () {}
-    );
-  }
 }
 
 function Race(input) {
@@ -112,10 +140,6 @@ function startGame(callback) {
     Race,
     callback
   );
-}
-
-function endGame() {
-  console.log("You have finished");
 }
 
 function Game() {
