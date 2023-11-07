@@ -1,57 +1,51 @@
-const EventEmitter = require("events");
-const emitter = new EventEmitter();
-emitter.setMaxListeners(50); // Aumenta el límite a 50
-
 const characters = {
   type: ["Elf", "Human", "Orc"],
 };
 
-
-function playAgain(callback) {
-  userFeedback(
-    `\nJugar de nuevo? 
-  \ny or n \n`,
-    function (input) {
-      if (input === "y") {
-        console.log("ejecutar start game");
-      } else {
-        console.log(
-          "game over"
-        );
-      }
-      callback();
-    },
-    function () {}
-  );
-}
+const readline = require("readline");
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+//se saca ^esto^ porque estaba creando demasiadas instancias dentro de userFeedback y creaba oyentes(los oyentes son llamadas
+//inesesarias a una funcion que no dan ningun resultado y cargan la memoria* por revizar)
 
 
 function userFeedback(toAsk, myFunction, followUp) {
-  const readline = require("readline");
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
   rl.question(toAsk, (userInput) => {
     myFunction(userInput);
     followUp(userInput);
   });
 }
+
+function playAgain() {
+  userFeedback(
+    `\nDo you wanna play again? 
+  \nY or N \n`,
+    function (input) {
+      if (input.toLowerCase() === "y") {
+        return startGame(function () {});
+      } else {
+        console.log("Game Over");
+      }
+    },
+    function () {}
+  );
+}
+
 function endGame() {
-  console.log("You have finished");
+  console.log("\nSee ya!\n(> ˘ ³˘)>♥");
 }
 
 function round(callback) {
-  console.log("Calcula:");
-  let level1 = 2;
-  let saveTextResult = "Save result for the end";
+  console.log("Let's calculate:");
+  let exe1Answer = 2;
 
   function firstask(callback) {
     userFeedback(
-      `\nWrite your answer.\n${level1} + ${level1}\n`,
+      `\nWrite your answer.\n${exe1Answer} + ${exe1Answer}= ?\n`,
       function (input) {
-        console.log(saveTextResult);
-        level1 = input;
+        exe1Answer = input;
         secondTask(callback);
       },
       function () {}
@@ -59,30 +53,25 @@ function round(callback) {
   }
   firstask(function () {});
 
-  let level2 = 40;
+  let exe2Answer = 40;
   function secondTask(callback) {
     userFeedback(
-      `\nWrite your answer.\n${level2} + ${level2}\n`,
+      `\nWrite your answer.\n${exe2Answer} + ${exe2Answer}= ?\n`,
       function (input) {
-        console.log(saveTextResult);
-        level2 = input;
+        exe2Answer = input;
         thirdTask(callback);
-        callback();
       },
       function () {}
     );
   }
 
-  let level3 = 120;
+  let exe3Answer = 120;
   function thirdTask(callback) {
     userFeedback(
-      `\nWrite your answer.\n${level3} + ${level3}\n`,
+      `\nWrite your answer.\n${exe3Answer} + ${exe3Answer}= ?\n`,
       function (input) {
-        console.log(saveTextResult);
-        level3 = input;
+        exe3Answer = input;
         lockCode(callback);
-
-        callback();
       },
       function () {}
     );
@@ -90,15 +79,15 @@ function round(callback) {
 
   function lockCode(callback) {
     userFeedback(
-      `\nVamos a poner todos los resultados juntos en la cerradura! 
-  \nLock Code: ${level1}-${level2}-${level3}\n`,
+      `\nLet's put all the answer together! 
+  \nLock Code: ${exe1Answer}-${exe2Answer}-${exe3Answer} = \n`,
       function (input) {
         if (input === "480240") {
-          console.log("Está abierta!!!");
+          console.log("\nIt's open!!! \n-------------- (^ ﾟДﾟ)^ --------------\nNow Run!!!! ");
+          endGame();
         } else {
           console.log(
-            "Tus resultados incorrectos rompieron el candado y no puedes salir."
-          );
+            "Some of your answer are incorrect.\n (╬ ಠ益ಠ) \n");
           playAgain();
         }
         callback();
@@ -108,6 +97,13 @@ function round(callback) {
   }
   callback;
 }
+function wrongRace(callback) {
+  userFeedback(
+    `You must write in character type, please try again.\n${characters.type[0]} - ${characters.type[1]} - ${characters.type[2]} \n`,
+    Race,
+    callback || function () {}
+  );
+}
 
 function Race(input) {
   let foundMatch = false;
@@ -115,26 +111,23 @@ function Race(input) {
     if (input.toLowerCase() === characters.type[i].toLowerCase()) {
       console.log(`You've chosen ${characters.type[i]}!\n`);
       console.log(
-        `La historia es la siguiente. Eres un ${characters.type[i]} atrapado en una celda y para escapar. Para eso necesitas completar varias ejercicios\n`
+        `You are an ${characters.type[i]} who has been captured bay the enemy and you want to escape. 
+        \n                         (ง'̀-'́)ง. 
+        \nFor that you must complete the following exercises to unlock the door.\n`
       );
       round();
       break;
     } else {
       foundMatch = true;
-      function wrongRace(callback) {
-        userFeedback(
-          `You must write in character type, please try again.\n${characters.type[0]} - ${characters.type[1]} - ${characters.type[2]} \n`,
-          Race,
-          callback
-        );
-      }
-      wrongRace();
     }
+  }
+  if (foundMatch) {
+    wrongRace(function () {});
   }
 }
 
 function startGame(callback) {
-  console.log("Welcome Player to the Game of Title/Game");
+  console.log("Welcome Player to the Game of Logic and Dungeons!");
   userFeedback(
     `First, type your Character:\n${characters.type[0]} - ${characters.type[1]} - ${characters.type[2]} \n`,
     Race,
@@ -145,7 +138,7 @@ function startGame(callback) {
 function Game() {
   startGame(() => {
     round(); //(" este es el valor de turno dentro de funcion Game(): turno#")
-  });
+  }, endGame);
 }
 
 //*******EXE****//
