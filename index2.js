@@ -16,6 +16,10 @@ function userFeedback(toAsk, myFunction, followUp) {
     followUp(userInput);
   });
 }
+function endGame() {
+  console.log("\nSee ya!\n(> ˘ ³˘)>♥");
+}
+
 
 function playAgain() {
   userFeedback(
@@ -26,15 +30,14 @@ function playAgain() {
         return startGame(function () {});
       } else {
         console.log("Game Over");
+        endGame();
       }
     },
     function () {}
   );
 }
 
-function endGame() {
-  console.log("\nSee ya!\n(> ˘ ³˘)>♥");
-}
+
 
 function round(callback) {
   console.log("Let's calculate:");
@@ -85,7 +88,6 @@ function round(callback) {
           console.log(
             "\nIt's open!!! \n-------------- (^ ﾟДﾟ)^ --------------\nNow Run!!!! "
           );
-          endGame();
         } else {
           console.log("Some of your answer are incorrect.\n\n(╬ ಠ益ಠ) \n");
           playAgain();
