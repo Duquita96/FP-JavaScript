@@ -20,11 +20,10 @@ function endGame() {
   console.log("\nSee ya!\n(> ˘ ³˘)>♥");
 }
 
-
 function playAgain() {
   userFeedback(
     `\nDo you wanna play again? 
-  \nYes: y or No: n \n`,
+    \nYes: y or No: n \n`,
     function (input) {
       if (input.toLowerCase() === "y") {
         return startGame(function () {});
@@ -37,54 +36,73 @@ function playAgain() {
   );
 }
 
+function task(question, index, answers, nextTask) {
+  userFeedback(
+    question,
+    function (input) {
+      answers[index] = input;
+      nextTask();
+    },
+    function () {}
+  );
+}
 
+class WarriorInPrision {
+  constructor(race, weapons) {
+    this.race = race;
+    this.weapons = weapons;
+  }
+}
 
-function round(callback) {
+function round(prisioner) {
   console.log("Let's calculate:");
-  let exe1Answer = 2;
+  let answers = [144, 2, null];
+  let cellNm = [2, 40, 120];
 
-  function firstask(callback) {
-    userFeedback(
-      `\nWrite your answer.\n${exe1Answer} + ${exe1Answer}= ?\n`,
-      function (input) {
-        exe1Answer = input;
-        secondTask(callback);
-      },
-      function () {}
-    );
+  let fibonacci = [1, 1];
+  for (let i = 2; i <= 15; i++) {
+    fibonacci[i] = fibonacci[i - 1] + fibonacci[i - 2]; //se suma los dos numeros anteriores(index posicion -1 y posicion -2)
   }
-  firstask(function () {});
+  task(
+    `\nWrite the missing number:\n${fibonacci.slice(7, 11)}, ? . \n`, //21,34,55,89, ? = 144
+    0,
+    answers,
+    function () {
+      task(
+        `\nYou heard a conversation between guards:
+        \n-...Yeah!, just yesterday we caught an ${prisioner.race} armed with a ${prisioner.weapons}, we locked him in cell number ${cellNm[0]}...-. 
+          \nTry to entering your cell number:`,
+        1, //2
+        answers,
+        function () {
+          task(
+            `\nYou only need one more number!.\nHint: this is one digit number that you haven't written before and is even.\n`,
+            2,
+            answers,
+            function () {
+              lockCode(answers);
+            },
+            function(input) {
+                // Number conditions (6? 8?)
+                return input.length === 1 
+                && !isNaN(input) 
+                && input >= 0 
+                && input <= 9 
+                && !answers.includes(parseInt(input))
+                && input % 2 === 0;
+              }
+            );
+          }
+        );
+      }
+    )
 
-  let exe2Answer = 40;
-  function secondTask(callback) {
-    userFeedback(
-      `\nWrite your answer.\n${exe2Answer} + ${exe2Answer}= ?\n`,
-      function (input) {
-        exe2Answer = input;
-        thirdTask(callback);
-      },
-      function () {}
-    );
-  }
-
-  let exe3Answer = 120;
-  function thirdTask(callback) {
-    userFeedback(
-      `\nWrite your answer.\n${exe3Answer} + ${exe3Answer}= ?\n`,
-      function (input) {
-        exe3Answer = input;
-        lockCode(callback);
-      },
-      function () {}
-    );
-  }
-
-  function lockCode(callback) {
+  function lockCode(answers) {
     userFeedback(
       `\nLet's put all the answer together! 
-  \nLock Code: ${exe1Answer}-${exe2Answer}-${exe3Answer} = \n`,
+Lock Code: ${answers[0]}-${answers[1]}-${answers[2]} = \n`,
       function (input) {
-        if (input === "480240") {
+        if (input === "14426" || input === "14428") {
           console.log(
             "\nIt's open!!! \n-------------- (^ ﾟДﾟ)^ --------------\nNow Run!!!!"
           );
@@ -92,13 +110,12 @@ function round(callback) {
           console.log("Some of your answer are incorrect.\n\n(╬ ಠ益ಠ) \n");
           playAgain();
         }
-        callback();
       },
       function () {}
     );
   }
-  callback;
 }
+
 function wrongRace(callback) {
   userFeedback(
     `You must write in character type, please try again.\n${characters.type[0]} - ${characters.type[1]} - ${characters.type[2]} \n`,
@@ -114,10 +131,11 @@ function Race(input) {
       console.log(`You've chosen ${characters.type[i]}!\n`);
       console.log(
         `You are an ${characters.type[i]} who has been captured bay the enemy and you want to escape. 
-        \n                         (ง'̀-'́)ง. 
-        \nFor that you must complete the following exercises to unlock the door.\n`
+            \n                         (ง'̀-'́)ง. 
+            \nIn order to achieve that, you must complete the following exercises to unlock the door.`
       );
-      round();
+      const prisioner = new WarriorInPrision(characters.type[i], "sword");
+      round(prisioner);
       break;
     } else {
       foundMatch = true;
