@@ -56,8 +56,8 @@ class WarriorInPrision {
 
 function round(prisioner) {
   console.log("Let's calculate:");
-  let answers = [144, 2, null];
-  let cellNm = [2, 40, 120];
+  let answers = [];
+  let cellNm = 2;
 
   let fibonacci = [1, 1];
   for (let i = 2; i <= 15; i++) {
@@ -70,7 +70,7 @@ function round(prisioner) {
     function () {
       task(
         `\nYou heard a conversation between guards:
-        \n-...Yeah!, just yesterday we caught an ${prisioner.race} armed with a ${prisioner.weapons}, we locked him in cell number ${cellNm[0]}...-. 
+        \n-...Yeah!, just yesterday we caught an ${prisioner.race} armed with a ${prisioner.weapons}, we locked him in cell number ${cellNm}...-. 
           \nTry to entering your cell number:`,
         1, //2
         answers,
