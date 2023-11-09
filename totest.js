@@ -1,7 +1,3 @@
-const characters = {
-  type: ["Elf", "Human", "Orc"],
-};
-
 const readline = require("readline");
 const rl = readline.createInterface({
   input: process.stdin,
@@ -16,6 +12,45 @@ function userFeedback(toAsk, myFunction, followUp) {
     followUp(userInput);
   });
 }
+
+const characters = {
+  type: ["Elf", "Human", "Orc"],
+  elf: {
+    enemies: ["Human", "Orc"],
+    weapon: "arch",
+  },
+  human: {
+    enemies: ["Elf", "Orc"],
+    weapon: "sword",
+  },
+  orc: {
+    enemies: ["Elf", "Human"],
+    weapon: "axe",
+  },
+};
+
+function randomEnemy(prisioner) {
+  if (prisioner.race === "Elf") {
+    const enemySelection = Math.floor(
+      Math.random() * characters.elf.enemies.length
+    );
+    const enemy = characters.elf.enemies[enemySelection];
+    return enemy;
+  } else if (prisioner.race === "Human") {
+    const enemySelection = Math.floor(
+      Math.random() * characters.human.enemies.length
+    );
+    const enemy = characters.human.enemies[enemySelection];
+    return enemy;
+  } else {
+    const enemySelection = Math.floor(
+      Math.random() * characters.orc.enemies.length
+    );
+    const enemy = characters.orc.enemies[enemySelection];
+    return enemy;
+  }
+}
+
 function endGame() {
   console.log("\nSee ya!\n(> ˘ ³˘)>♥");
 }
@@ -69,8 +104,14 @@ function round(prisioner) {
     answers,
     function () {
       task(
-        `\nYou heard a conversation between guards:
-        \n-...Yeah!, just yesterday we caught an ${prisioner.race} armed with a ${prisioner.weapons}, we locked him in cell number ${cellNm}...-. 
+        `\nYou heard a conversation between two ${randomEnemy(
+          prisioner
+        )}s guards:
+        \n-...Yeah!, just yesterday we caught an ${
+          prisioner.race
+        } armed with a ${
+          prisioner.weapons
+        }, we locked him in cell number ${cellNm}...-. 
           \nTry to entering your cell number:`,
         1, //2
         answers,
@@ -82,20 +123,22 @@ function round(prisioner) {
             function () {
               lockCode(answers);
             },
-            function(input) {
-                // Number conditions (6? 8?)
-                return input.length === 1 
-                && !isNaN(input) 
-                && input >= 0 
-                && input <= 9 
-                && !answers.includes(parseInt(input))
-                && input % 2 === 0;
-              }
-            );
-          }
-        );
-      }
-    )
+            function (input) {
+              // Number conditions (6? 8?)
+              return (
+                input.length === 1 &&
+                !isNaN(input) &&
+                input >= 0 &&
+                input <= 9 &&
+                !answers.includes(parseInt(input)) &&
+                input % 2 === 0
+              );
+            }
+          );
+        }
+      );
+    }
+  );
 
   function lockCode(answers) {
     userFeedback(
@@ -128,13 +171,12 @@ function Race(input) {
   let foundMatch = false;
   for (let i = 0; i < characters.type.length; i++) {
     if (input.toLowerCase() === characters.type[i].toLowerCase()) {
+      const race = characters.type[i];
       console.log(`You've chosen ${characters.type[i]}!\n`);
-      console.log(
-        `You are an ${characters.type[i]} who has been captured bay the enemy and you want to escape. 
+      console.log(`You are an ${race} who has been captured bay the enemy and you want to escape. 
             \n                         (ง'̀-'́)ง. 
-            \nIn order to achieve that, you must complete the following exercises to unlock the door.`
-      );
-      const prisioner = new WarriorInPrision(characters.type[i], "sword");
+            \nIn order to achieve that, you must complete the following exercises to unlock the door.`);
+      const prisioner = new WarriorInPrision(race, characters[race.toLowerCase()].weapon);
       round(prisioner);
       break;
     } else {
