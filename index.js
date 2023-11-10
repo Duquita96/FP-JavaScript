@@ -1,87 +1,215 @@
-console.log(
-  "Welcome Player to the Game of Title/Game! \nFirst, choose your Character:"
-);
-
-const characters = {
-  type: ["Elf", "Human", "Orc"],
-};
-
-//Se utiliza la función readline.createInterface()
-// para crear una interfaz de lectura y escritura para la entrada y
-// salida estándar. Luego, se utiliza la función rl.question() para
-// hacer una pregunta al usuario y esperar su respuesta. Una vez que
-// se recibe la respuesta del usuario, se compara con los elementos del
-// array characters.type utilizando un bucle for. Si la respuesta del
-// usuario coincide con un elemento en el array, se muestra un mensaje
-// que indica que el usuario eligió ese personaje.
-
-const readline = require("readline"); //readline en un modulo de node.js
-
+const readline = require("readline");
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
-//readline en una funcion que le dice espera que se le pase una respuesta para continuar con el siguiente paso
+//se saca ^esto^ porque estaba creando demasiadas instancias dentro de userFeedback y creaba oyentes(los oyentes son llamadas
+//inesesarias a una funcion que no dan ningun resultado y cargan la memoria* por revizar)
 
-askUser();
-
-function askUser() {
-  rl.question(
-    `\n${characters.type[0]} \n${characters.type[1]} \n${characters.type[2]} \nType your answer here: `,
-    (userCharChoose) => {
-      let foundMatch = false;
-      for (let i = 0; i < characters.type.length; i++) {
-        if (userCharChoose.toLowerCase() === characters.type[i].toLowerCase()) {
-          console.log(`You've chosen ${characters.type[i]}!`);
-          console.log(
-            "Now for start to play we need to move your character across the map, for that you we need to roll the dice"
-          );
-
-          foundMatch = true;
-          break;
-        }
-      }
-      if (!foundMatch) {
-        //if the answer is wrong the error message shows up
-        console.log("You must write in character type, please try again.");
-        askUser();
-      } else {
-        rollDice();
-      }
-    }
-  );
-}
-
-function rollDice() {
-  rl.question("Enter '1' to roll the dice: ", (userInput) => {
-    if (userInput === "1") {
-      const randomNumber = Math.floor(Math.random() * 4) + 1;
-      console.log(
-        `You rolled a ${randomNumber}!, so move ${randomNumber} block across the map`
-      );
-      level1(randomNumber);
-    } else {
-      console.log("Invalid input. Please try again.");
-    }
-    rl.close();
+function userFeedback(toAsk, myFunction, followUp) {
+  rl.question(toAsk, (userInput) => {
+    myFunction(userInput);
+    followUp(userInput);
   });
 }
 
-function level1(randomNumber) {
-  let level1 = {
-    block1: {
-      Celda1_1: "Valor1_1",
-      Celda1_2: "Valor1_2",
-      Celda1_3: "Valor1_3",
-      Celda1_4: "Valor1_4",
-    },
-  };  
-    // // Crea un array con los nuevos valores
-    // const newValues = [`Your ${characters.type[i]} is in Quest #1!`,`Your ${characters.type[i]} is in Quest #2!`, `Your ${characters.type[i]} is in Quest #3!`, `Your ${characters.type[i]} is in Quest #4!`];
-  
-    // // Actualiza el valor de la celda correspondiente
-    // level1.block1[`Celda1_${randomNumber}`] = newValues[randomNumber - 1];
-  
-    // Muestra los datos como una tabla en la consola
-    console.table(level1);
+const characters = {
+  type: ["Elf", "Human", "Orc"],
+  elf: {
+    enemies: ["Human", "Orc"],
+    weapon: "arch",
+  },
+  human: {
+    enemies: ["Elf", "Orc"],
+    weapon: "sword",
+  },
+  orc: {
+    enemies: ["Elf", "Human"],
+    weapon: "axe",
+  },
+};
+
+function randomEnemy(prisioner) {
+  if (prisioner.race === "Elf") {
+    const enemySelection = Math.floor(
+      Math.random() * characters.elf.enemies.length
+    );
+    const enemy = characters.elf.enemies[enemySelection];
+    return enemy;
+  } else if (prisioner.race === "Human") {
+    const enemySelection = Math.floor(
+      Math.random() * characters.human.enemies.length
+    );
+    const enemy = characters.human.enemies[enemySelection];
+    return enemy;
+  } else {
+    const enemySelection = Math.floor(
+      Math.random() * characters.orc.enemies.length
+    );
+    const enemy = characters.orc.enemies[enemySelection];
+    return enemy;
   }
+}
+
+function endGame() {
+  console.log("\nSee ya!\n(> ˘ ³˘)>♥");
+}
+
+function playAgain() {
+  userFeedback(
+    `\nDo you wanna play again? 
+    \nYes: y or No: n \n`,
+    function (input) {
+      if (input.toLowerCase() === "y") {
+        return startGame(function () {});
+      } else {
+        console.log("Game Over");
+        endGame();
+      }
+    },
+    function () {}
+  );
+}
+
+function task(question, index, answers, nextTask) {
+  userFeedback(
+    question,
+    function (input) {
+      answers[index] = input;
+      nextTask();
+    },
+    function () {}
+  );
+}
+
+class WarriorInPrision {
+  constructor(race, weapons) {
+    this.race = race;
+    this.weapons = weapons;
+  }
+}
+
+function round(prisioner) {
+  console.log("Let's calculate:");
+  let answers = [];
+  let cellNm = 2;
+
+  let fibonacci = [1, 1];
+  for (let i = 2; i <= 8; i++) {
+    fibonacci[i] = fibonacci[i - 1] + fibonacci[i - 2];
+  }
+
+  let randomIndex = Math.floor(Math.random() * 8); // Genera un número aleatorio menor o igual a 8
+  task(
+    `\nWrite the missing number:\n${fibonacci.slice(
+      randomIndex,
+      randomIndex + 4,
+    )}, ? . \n`,
+    0,
+    answers,
+    function () {
+      task(
+        `\nYou heard a conversation between two ${randomEnemy(
+          prisioner
+        )}s guards:
+        \n-...Yeah!, just yesterday we caught an ${
+          prisioner.race
+        } armed with a ${
+          prisioner.weapons
+        }, we locked him in cell number ${cellNm}...-. 
+          \nTry to entering your cell number:`,
+        1, //2
+        answers,
+        function () {
+          task(
+            `\nYou only need one more number!.\nHint: this is one digit number that you haven't written before and is even.\n`,
+            2,
+            answers,
+            function () {
+              lockCode(answers, fibonacci, randomIndex);
+            },
+            function (input) {
+              // Number conditions (6?)
+              return (
+                input.length === 1 &&
+                !isNaN(input) &&
+                input >= 0 &&
+                input <= 9 &&
+                input !== fibonacci[randomIndex + 4] &&
+                !answers.includes(parseInt(input)) &&
+                input % 2 === 0 &&
+                input % 3 === 0
+              );
+            }
+          );
+        }
+      );
+    }
+  );
+
+  function lockCode(answers, fibonacci, randomIndex) {
+    userFeedback(
+      `\nLet's put all the answer together! 
+Lock Code: ${answers[0]}-${answers[1]}-${answers[2]} = \n`,
+      function (input) {
+        if (input ===`${fibonacci[randomIndex + 4]}26`) {
+          console.log(
+            "\nIt's open!!! \n-------------- (^ ﾟДﾟ)^ --------------\nNow Run!!!!"
+          );
+        } else {
+          console.log(`Some of your answer are incorrect.\n\n(╬ ಠ益ಠ) \n`);
+          playAgain();
+        }
+      },
+      function () {}
+    );
+  }
+}
+
+function wrongRace(callback) {
+  userFeedback(
+    `You must write in character type, please try again.\n${characters.type[0]} - ${characters.type[1]} - ${characters.type[2]} \n`,
+    Race,
+    callback
+  );
+}
+
+function Race(input) {
+  let foundMatch = false;
+  for (let i = 0; i < characters.type.length; i++) {
+    if (input.toLowerCase() === characters.type[i].toLowerCase()) {
+      const race = characters.type[i];
+      console.log(`You've chosen ${characters.type[i]}!\n`);
+      console.log(`You are an ${race} who has been captured bay the enemy and you want to escape. 
+            \n                         (ง'̀-'́)ง. 
+            \nIn order to achieve that, you must complete the following exercises to unlock the door.`);
+      const prisioner = new WarriorInPrision(race, characters[race.toLowerCase()].weapon);
+      round(prisioner);
+      break;
+    } else {
+      foundMatch = true;
+    }
+  }
+  if (foundMatch) {
+    wrongRace(function () {});
+  }
+}
+
+function startGame(callback) {
+  console.log("Welcome Player to the Game of Logic and Dungeons!");
+  userFeedback(
+    `First, type your Character:\n${characters.type[0]} - ${characters.type[1]} - ${characters.type[2]} \n`,
+    Race,
+    callback
+  );
+}
+
+function Game() {
+  startGame(() => {
+    round(); //(" este es el valor de turno dentro de funcion Game(): turno#")
+  }, endGame);
+}
+
+//*******EXE****//
+
+Game();
