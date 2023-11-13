@@ -122,7 +122,7 @@ function round(prisioner) {
         answers,
         function () {
           task(
-            `\nYou only need one more number!.\nHint: this is one digit number that you haven't written before, is even and it is also a multiple of 3.\n`,
+            `\nYou only need one more number!.\nHint: this is one digit number that you haven't written before, is even, less than 8 and it is also a multiple of 3.\n`,
             2,
             answers,
             function () {
