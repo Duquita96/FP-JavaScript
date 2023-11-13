@@ -13,6 +13,7 @@ function userFeedback(toAsk, myFunction, followUp) {
   });
 }
 
+//object characters with 3 properties
 const characters = {
   type: ["Elf", "Human", "Orc"],
   elf: {
@@ -29,10 +30,12 @@ const characters = {
   },
 };
 
+
+//to compare the input from the user and choose the radom enemy
 function randomEnemy(prisioner) {
   if (prisioner.race === "Elf") {
     const enemySelection = Math.floor(
-      Math.random() * characters.elf.enemies.length
+      Math.random() * characters.elf.enemies.length//comparing with the array of enemies
     );
     const enemy = characters.elf.enemies[enemySelection];
     return enemy;
@@ -70,7 +73,8 @@ function playAgain() {
     function () {}
   );
 }
-
+//question is the question to the user, index ist the position of the array where you will save the answer from the user,
+//answer ist where the answer are saved, and nextTask() is to initialize after all(option for not use await/promises)
 function task(question, index, answers, nextTask) {
   userFeedback(
     question,
@@ -81,7 +85,7 @@ function task(question, index, answers, nextTask) {
     function () {}
   );
 }
-
+//class WarriorInPrision is for apply the race and weapons for the prisioner
 class WarriorInPrision {
   constructor(race, weapons) {
     this.race = race;
@@ -89,17 +93,17 @@ class WarriorInPrision {
   }
 }
 
-function round(prisioner) {
+function round(prisioner) {//prisioner is a variable declare in Race()
   console.log("Let's calculate:");
   let answers = [];
   let cellNm = 2;
 
-  let fibonacci = [1, 1];
+  let fibonacci = [1, 1];//fibonacci sequence that start from 2 to 8(index) 1,1,2,3,5,8,13,21,35,55,89
   for (let i = 2; i <= 8; i++) {
     fibonacci[i] = fibonacci[i - 1] + fibonacci[i - 2];
   }
 
-  let randomIndex = Math.floor(Math.random() * 8); // Genera un número aleatorio menor o igual a 8
+  let randomIndex = Math.floor(Math.random() * 8); // generate a random number max 8
   task(
     `\nWrite the missing number:\n${fibonacci.slice(
       randomIndex,
@@ -109,7 +113,7 @@ function round(prisioner) {
     answers,
     function () {
       task(
-        `\nYou heard a conversation between two ${randomEnemy(
+        `\nYou heard a conversation between two ${randomEnemy(//calling the random enemy with the prisioner parameter to accede the race
           prisioner
         )}s guards:
         \n-...Yeah!, just yesterday we caught an ${
@@ -129,7 +133,7 @@ function round(prisioner) {
               lockCode(answers, fibonacci, randomIndex);
             },
             function (input) {
-              // Number conditions (6?)
+              // Answer = 6
               return (
                 input.length === 1 &&
                 !isNaN(input) &&
@@ -176,8 +180,8 @@ function wrongRace(callback) {
 
 function Race(input) {
   let foundMatch = false;
-  for (let i = 0; i < characters.type.length; i++) {
-    if (input.toLowerCase() === characters.type[i].toLowerCase()) {
+  for (let i = 0; i < characters.type.length; i++) {// calling th variable characters
+    if (input.toLowerCase() === characters.type[i].toLowerCase()) {//no case sensitive
       const race = characters.type[i];
       console.log(`You've chosen ${characters.type[i]}!\n`);
       console.log(`You are an ${race} who has been captured bay the enemy and you want to escape. 
@@ -185,7 +189,7 @@ function Race(input) {
             \nIn order to achieve that, you must complete the following exercises to unlock the door.`);
       const prisioner = new WarriorInPrision(race, characters[race.toLowerCase()].weapon);
       round(prisioner);
-      break;
+      break;//break is used to stop the funtion and not running the other if{} 
     } else {
       foundMatch = true;
     }
@@ -206,7 +210,7 @@ function startGame(callback) {
 
 function Game() {
   startGame(() => {
-    round(); //(" este es el valor de turno dentro de funcion Game(): turno#")
+    round(); //(round is a callback for startGame())
   }, endGame);
 }
 
